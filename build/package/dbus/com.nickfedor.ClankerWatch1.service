@@ -1,0 +1,4 @@
+[D-BUS Service]
+Name=com.nickfedor.ClankerWatch1
+Exec=/usr/bin/clankerwatch serve
+SystemdService=clankerwatch.service

@@ -1,0 +1,50 @@
+---
+title: {{ yaml .Title }}
+description: {{ yaml .Description }}
+weight: 7
+type: docs
+---
+
+Complete command reference for {{ .Name }}, generated from the program itself.
+{{- if .Long }}
+
+{{ .Long }}
+{{- end }}
+
+## Commands
+
+The systemd user unit runs `serve`, so you rarely run it yourself. `status` is the first thing to check when the widget shows something unexpected.
+
+| Command | Description |
+| --- | --- |
+{{- range .Sections }}
+{{- range .SubCommands }}
+| [{{ .Name }}]({{ .URL }}) | {{ cell .Description }} |
+{{- end }}
+{{- end }}
+{{- if .Examples }}
+
+## Examples
+{{- range .Examples }}
+{{- if .Title }}
+
+### {{ .Title }}
+{{- end }}
+
+```bash
+{{ .Code }}
+```
+{{- end }}
+{{- end }}
+{{- if .Flags }}
+
+## Global options
+
+Every command accepts these settings flags. A flag overrides its environment variable, which overrides the settings file. See [Configuration](/configuration/) for the details.
+
+| Flag | Short | Default | Type | Description |
+| --- | --- | --- | --- | --- |
+{{- range .Flags }}
+| {{ code (print "--" .Name) }} | {{ if .Shorthand }}{{ code (print "-" .Shorthand) }}{{ end }} | {{ defaultVal . | cell }} | {{ cell .Type }} | {{ cell .Usage }} |
+{{- end }}
+{{- end }}

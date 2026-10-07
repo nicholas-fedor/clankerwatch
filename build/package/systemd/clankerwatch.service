@@ -1,0 +1,61 @@
+# Copyright (c) Nicholas Fedor 2026 <nick@nickfedor.com>
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# systemd user unit for clankerwatch. D-Bus starts it on demand when the
+# Plasma widget loads, so it has no [Install] section. The daemon reads its
+# settings from ~/.config/clankerwatch/config.yaml.
+
+[Unit]
+Description=clankerwatch Claude Code usage monitor
+Documentation=https://github.com/nicholas-fedor/clankerwatch
+PartOf=graphical-session.target
+
+[Service]
+Type=dbus
+BusName=com.nickfedor.ClankerWatch1
+ExecStart=/usr/bin/clankerwatch serve
+# The sandbox below makes the home directory read-only except for these two
+# directories, which must exist before it starts. "+" runs this step outside
+# the sandbox.
+ExecStartPre=+mkdir -p -m 0700 %E/clankerwatch %S/clankerwatch
+# Applies a hand-edited settings file without a restart.
+ExecReload=kill -HUP $MAINPID
+Environment=GOMAXPROCS=2 GOMEMLIMIT=24MiB
+Restart=on-failure
+RestartSec=10s
+Slice=background.slice
+MemoryHigh=32M
+MemoryMax=64M
+TasksMax=32
+UMask=0077
+
+# Sandbox. The daemon reads Claude Code's files, writes only its settings and
+# state, and talks to the session bus and api.anthropic.com. It keeps /proc
+# visible because it checks whether Claude Code's processes are alive. A
+# stateDir outside ~/.local/state needs a drop-in adding it to ReadWritePaths.
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%E/clankerwatch %S/clankerwatch
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateMounts=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+KeyringMode=private
+CapabilityBoundingSet=
+AmbientCapabilities=
+NoNewPrivileges=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+RestrictNamespaces=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
+SystemCallErrorNumber=EPERM

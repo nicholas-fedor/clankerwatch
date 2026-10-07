@@ -1,0 +1,76 @@
+---
+name: Release Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      DRY_RUN:
+        description: "Build a snapshot without publishing artifacts"
+        required: false
+        default: true
+        type: boolean
+  push:
+    tags:
+      - "v[0-9]*.[0-9]*.[0-9]*"
+
+permissions:
+  contents: read # Set default read-only permissions
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-tag:
+    name: Validate Release Tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Require a Production Tag Format
+        if: ${{ github.ref_type == 'tag' }}
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if ! printf '%s' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::'$TAG' is not a vMAJOR.MINOR.PATCH production tag."
+            exit 1
+          fi
+          echo "Releasing $TAG"
+
+      # A manual run off a tag can only build a snapshot. Publishing needs
+      # the tag push, so a real release always matches a tag.
+      - name: Require a Dry Run Without a Tag
+        if: ${{ github.ref_type != 'tag' && !inputs.DRY_RUN }}
+        run: |
+          echo "::error::Run from a vMAJOR.MINOR.PATCH tag, or enable DRY_RUN."
+          exit 1
+
+  test:
+    name: Run Tests
+    needs: [validate-tag]
+    uses: ./.github/workflows/test.yaml # zizmor: ignore[self-repository] actionlint rejects $/ until rhysd/actionlint#711
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    permissions:
+      contents: read # For code checkout
+
+  build:
+    name: Run Build
+    needs: [test]
+    uses: ./.github/workflows/build.yaml # zizmor: ignore[self-repository] actionlint rejects $/ until rhysd/actionlint#711
+    permissions:
+      contents: write # For code checkout and publishing releases
+      attestations: write # For generating build provenance
+      id-token: write # For keyless Sigstore signing and attestations
+    with:
+      ENVIRONMENT: CI-Release
+      DRY_RUN: ${{ inputs.DRY_RUN || false }}
+
+  update-go-docs:
+    name: Run Go Pkg Update
+    needs: [build]
+    if: ${{ !inputs.DRY_RUN }}
+    permissions:
+      contents: read
+    uses: ./.github/workflows/update-go-docs.yaml # zizmor: ignore[self-repository] actionlint rejects $/ until rhysd/actionlint#711

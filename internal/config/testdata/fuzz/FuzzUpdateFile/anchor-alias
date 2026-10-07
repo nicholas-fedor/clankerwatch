@@ -1,0 +1,7 @@
+go test fuzz v1
+[]byte("interval: &a 5m\nidleInterval: *a\n")
+uint16(3)
+float64(50)
+bool(false)
+byte('\x00')
+byte('\x01')

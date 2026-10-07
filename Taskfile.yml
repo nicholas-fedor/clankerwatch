@@ -1,0 +1,265 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+silent: true
+
+# LDFLAGS is shared by the build and install tasks so both stamp identical
+# version metadata. VERSION, COMMIT_SHA, and BUILD_TIME are dynamic, so every
+# invocation reads fresh values instead of a value cached in the Taskfile.
+vars:
+  MODULE: github.com/nicholas-fedor/clankerwatch
+  BUS_NAME: com.nickfedor.ClankerWatch1
+  APPLET_ID: com.nickfedor.clankerwatch
+  VERSION:
+    sh: git describe --tags --abbrev=0 2>/dev/null || echo dev
+  COMMIT_SHA:
+    sh: git rev-parse --short HEAD 2>/dev/null || echo unknown
+  BUILD_TIME:
+    sh: date -u +%Y-%m-%dT%H:%M:%SZ
+  LDFLAGS: >-
+    -s -w
+    -X '{{.MODULE}}/internal/version.Version={{.VERSION}}'
+    -X '{{.MODULE}}/internal/version.CommitSHA={{.COMMIT_SHA}}'
+    -X '{{.MODULE}}/internal/version.BuildTime={{.BUILD_TIME}}'
+  QMLLINT: /usr/lib/qt6/bin/qmllint
+  BINDIR:
+    sh: echo "${BINDIR:-$HOME/.local/bin}"
+  CONFIG_HOME:
+    sh: echo "${XDG_CONFIG_HOME:-$HOME/.config}"
+  DATA_HOME:
+    sh: echo "${XDG_DATA_HOME:-$HOME/.local/share}"
+  UNITDIR: "{{.CONFIG_HOME}}/systemd/user"
+  DBUSDIR: "{{.DATA_HOME}}/dbus-1/services"
+  APPCONFDIR: "{{.CONFIG_HOME}}/clankerwatch"
+  # The packaged unit files name /usr/bin. A user install points them at BINDIR.
+  RENDER: sed -e 's|/usr/bin/clankerwatch|{{.BINDIR}}/clankerwatch|g'
+  PKGS:
+    sh: go list ./... | grep -v /mocks$ | tr '\n' ' '
+
+tasks:
+  default:
+    desc: "Show available tasks"
+    cmds:
+      - task --list-all
+
+  build:
+    desc: "Build a static binary to ./bin/clankerwatch with version info injected"
+    env:
+      CGO_ENABLED: "0"
+    cmds:
+      - go build -trimpath -ldflags "{{.LDFLAGS}}" -o bin/clankerwatch .
+
+  run:
+    desc: "Run the daemon in the foreground"
+    cmds:
+      - go run . serve
+
+  demo:
+    desc: "Stop the service and replay canned states for widget work"
+    cmds:
+      - task: build
+      - cmd: systemctl --user stop clankerwatch.service
+        ignore_error: true
+      - bin/clankerwatch demo
+
+  fmt:
+    desc: "Format code with golangci-lint fmt and align structs with betteralign"
+    # betteralign reorders struct fields for size and keeps their comments.
+    # golangci-lint's fieldalignment would delete them, so it stays disabled.
+    cmds:
+      - golangci-lint fmt --config build/golangci-lint/golangci-lint.yaml ./...
+      - betteralign -apply ./...
+
+  vet:
+    desc: "Run go vet"
+    cmds:
+      - go vet ./...
+
+  test:
+    desc: "Run tests with race detection and a coverage gate"
+    vars:
+      COVERAGE_MIN: "80"
+    env:
+      CGO_ENABLED: "1"
+    cmds:
+      - go test -race -count=1 -coverprofile=coverage.out {{.PKGS}}
+      - go tool cover -func=coverage.out | tail -1
+      - |
+        go tool cover -func=coverage.out \
+          | awk -v min={{.COVERAGE_MIN}} '/^total:/ { gsub(/%/, "", $3);
+              if ($3 + 0 < min + 0) {
+                printf "coverage %.1f%% is below the %s%% gate\n", $3, min
+                exit 1
+              }
+              printf "coverage %.1f%% meets the %s%% gate\n", $3, min }'
+
+  lint:
+    desc: "Run golangci-lint and the betteralign struct alignment check"
+    cmds:
+      - golangci-lint run --config build/golangci-lint/golangci-lint.yaml ./...
+      - betteralign ./...
+
+  qmllint:
+    desc: "Lint the widget QML with the Qt 6 qmllint"
+    # i18n() is injected by Plasma at runtime, so unqualified-access warnings are noise.
+    cmds:
+      - "{{.QMLLINT}} -I /usr/lib/qt6/qml --unqualified disable plasmoid/contents/ui/*.qml"
+
+  policy-check:
+    desc: "Fail on token refresh code and on bus names that disagree"
+    cmds:
+      - |
+        if grep -rnE 'oauth/token|grant_type|"refresh_?[tT]oken"' --include='*.go' --exclude='*_test.go' internal main.go; then
+          echo "policy-check: token refresh code is not allowed" >&2; exit 1
+        fi
+      - |
+        for f in internal/bus/service.go plasmoid/contents/ui/UsageModel.qml plasmoid/contents/ui/ConfigGeneral.qml \
+                 build/package/systemd/clankerwatch.service \
+                 build/package/dbus/{{.BUS_NAME}}.service; do
+          grep -q '{{.BUS_NAME}}' "$f" || { echo "policy-check: bus name mismatch in $f" >&2; exit 1; }
+        done
+
+  modernize:
+    desc: "Fail when go fix modernizers would change the code. FIX=true applies them"
+    # Run after every Go toolchain upgrade to adopt the new version's idioms.
+    cmds:
+      - |
+        if [ "{{.FIX | default "false"}}" = "true" ]; then
+          go fix ./...
+        else
+          diff=$(go fix -diff ./...)
+          if [ -n "$diff" ]; then
+            printf '%s\n' "$diff"
+            echo "modernize: run 'task modernize FIX=true' to apply" >&2
+            exit 1
+          fi
+        fi
+
+  bench:
+    desc: "Run benchmarks"
+    cmds:
+      - go test -bench=. -benchmem -run='^$' {{.PKGS}}
+
+  fuzz:
+    desc: "Run fuzz targets for 30s each, or FUZZTIME=<duration> to override"
+    # go test fuzzes one target in one package per run, so the loop lists each
+    # package's fuzz targets and runs them one at a time, anchored so that one
+    # name cannot match another. set -eu aborts on the first failure.
+    # FUZZTIME has no vars entry: a declared var would shadow the command line.
+    cmds:
+      - |
+        set -eu
+        for pkg in {{.PKGS}}; do
+          for target in $(go test -list '^Fuzz' "$pkg" | grep '^Fuzz' || true); do
+            echo "fuzzing $pkg $target"
+            go test -run='^$' -fuzz="^${target}\$" -fuzztime={{.FUZZTIME | default "30s"}} "$pkg"
+          done
+        done
+
+  mocks:
+    desc: "Generate mocks with mockery"
+    cmds:
+      - mockery --config=build/mockery/mockery.yaml
+
+  vuln:
+    desc: "Report known vulnerabilities in the dependency graph"
+    cmds:
+      - govulncheck ./...
+
+  docs:
+    desc: "Regenerate the Hugo CLI reference under ./docs/content/cli-reference"
+    # docgen writes one page per command, so clearing the directory first
+    # drops pages for removed commands.
+    cmds:
+      - rm -rf docs/content/cli-reference
+      - go run ./tools/docgen -out ./docs/content/cli-reference
+
+  docs:build:
+    desc: "Build the documentation site into ./docs/public"
+    cmds:
+      - hugo --source docs --minify
+
+  docs:serve:
+    desc: "Preview the documentation site with live reload"
+    cmds:
+      - hugo server --source docs
+
+  changelog:
+    desc: "Regenerate CHANGELOG.md from the commit history with git-cliff"
+    cmds:
+      - git cliff --output CHANGELOG.md
+
+  check:
+    desc: "Run fmt, vet, modernize, test, lint, qmllint, policy-check, then vuln"
+    cmds:
+      - task: fmt
+      - task: vet
+      - task: modernize
+      - task: test
+      - task: lint
+      - task: qmllint
+      - task: policy-check
+      - task: vuln
+
+  install:
+    desc: "Install the daemon, systemd user unit, D-Bus activation file, settings file and widget for this user"
+    cmds:
+      - task: build
+      - install -Dm0755 bin/clankerwatch {{.BINDIR}}/clankerwatch
+      - mkdir -p {{.UNITDIR}} {{.DBUSDIR}} {{.APPCONFDIR}}
+      - "{{.RENDER}} build/package/systemd/clankerwatch.service > {{.UNITDIR}}/clankerwatch.service"
+      - "{{.RENDER}} build/package/dbus/{{.BUS_NAME}}.service > {{.DBUSDIR}}/{{.BUS_NAME}}.service"
+      - "[ -f {{.APPCONFDIR}}/config.yaml ] || install -m0600 build/package/config.example.yaml {{.APPCONFDIR}}/config.yaml"
+      - systemctl --user daemon-reload
+      - busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus ReloadConfig >/dev/null
+      - systemctl --user try-restart clankerwatch.service
+      - kpackagetool6 -t Plasma/Applet -u plasmoid >/dev/null 2>&1 || kpackagetool6 -t Plasma/Applet -i plasmoid
+
+  update:
+    desc: "Reinstall from this checkout, restart the daemon, and reload plasmashell if the widget changed"
+    cmds:
+      - task: install
+      - systemctl --user restart clankerwatch.service
+      - task: reload-if-widget-changed
+
+  reload-if-widget-changed:
+    internal: true
+    # Plasma only loads new QML after a restart, which blinks the panel, so
+    # this runs only when the widget sources changed since the last update.
+    sources:
+      - plasmoid/**/*
+    method: checksum
+    cmds:
+      - task: reload
+
+  uninstall:
+    desc: "Remove the user install, keeping the settings file and state"
+    cmds:
+      - cmd: systemctl --user stop clankerwatch.service
+        ignore_error: true
+      - rm -f {{.BINDIR}}/clankerwatch {{.UNITDIR}}/clankerwatch.service {{.DBUSDIR}}/{{.BUS_NAME}}.service
+      - cmd: kpackagetool6 -t Plasma/Applet -r {{.APPLET_ID}}
+        ignore_error: true
+      - systemctl --user daemon-reload
+      - busctl --user call org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus ReloadConfig >/dev/null
+
+  reload:
+    desc: "Restart plasmashell so it loads new widget QML"
+    cmds:
+      - systemctl --user restart plasma-plasmashell.service
+
+  release:
+    desc: "Publish a release from the current tag"
+    cmds:
+      - goreleaser release --clean --config build/goreleaser/goreleaser.yaml
+
+  release:snapshot:
+    desc: "Build every target and package locally without signing or publishing"
+    cmds:
+      - goreleaser release --snapshot --clean --skip=sign --config build/goreleaser/goreleaser.yaml
+
+  clean:
+    desc: "Remove build artifacts"
+    cmds:
+      - rm -rf bin/ dist/ .task/ coverage.out docs/public docs/resources/_gen

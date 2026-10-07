@@ -1,0 +1,34 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices", ":semanticCommits"],
+  "postUpdateOptions": ["gomodTidy"],
+  "packageRules": [
+    {
+      "description": "Bump the Go version in go.mod to the newest toolchain",
+      "matchManagers": ["gomod"],
+      "matchDepNames": ["go"],
+      "matchDepTypes": ["golang"],
+      "rangeStrategy": "bump",
+      "semanticCommitType": "chore"
+    },
+    {
+      "description": "Keep indirect Go modules current",
+      "matchManagers": ["gomod"],
+      "matchDepTypes": ["indirect"],
+      "semanticCommitType": "chore",
+      "enabled": true
+    },
+    {
+      "description": "Group the Hugo modules of the documentation site",
+      "matchManagers": ["gomod"],
+      "matchFileNames": ["docs/go.mod"],
+      "groupName": "docs hugo modules",
+      "semanticCommitType": "docs"
+    },
+    {
+      "description": "Automerge non-major updates",
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true
+    }
+  ]
+}

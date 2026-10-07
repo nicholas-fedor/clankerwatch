@@ -1,0 +1,15 @@
+{{- /*
+  Copyright (c) Nicholas Fedor 2026 <nick@nickfedor.com>
+  SPDX-License-Identifier: AGPL-3.0-or-later
+
+  Embeds a muted, looping demo clip with WebM and MP4 sources and a still
+  image for browsers that cannot play either.
+
+  Usage: {{< video name="demo" poster="/images/popup.png" alt="..." >}}
+*/ -}}
+{{- $name := .Get "name" -}}
+<video autoplay loop muted playsinline poster="{{ .Get "poster" | relURL }}" aria-label="{{ .Get "alt" }}" style="max-width: 100%; height: auto;">
+  <source src="{{ printf "/images/%s.webm" $name | relURL }}" type="video/webm">
+  <source src="{{ printf "/images/%s.mp4" $name | relURL }}" type="video/mp4">
+  <img src="{{ .Get "poster" | relURL }}" alt="{{ .Get "alt" }}">
+</video>

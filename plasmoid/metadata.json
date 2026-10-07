@@ -1,0 +1,20 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.4",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "nick@nickfedor.com",
+                "Name": "Nicholas Fedor"
+            }
+        ],
+        "Category": "System Information",
+        "Description": "Claude Code subscription usage limits",
+        "Icon": "speedometer",
+        "Id": "com.nickfedor.clankerwatch",
+        "Name": "Clanker Watch",
+        "Version": "0.1.0",
+        "License": "AGPL-3.0-or-later",
+        "Website": "https://github.com/nicholas-fedor/clankerwatch"
+    }
+}

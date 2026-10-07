@@ -1,0 +1,196 @@
+################################################################################
+#                                                                              #
+#                  GoReleaser OSS Stable Release Configuration                 #
+#                                                                              #
+# Project: clankerwatch                                                       #
+# Repository: https://github.com/nicholas-fedor/clankerwatch/                 #
+#                                                                              #
+# GoReleaser URL: https://goreleaser.com/                                      #
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json      #
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj                                             #
+#                                                                              #
+################################################################################
+
+################################################################################
+# Configuration Version
+version: 2
+################################################################################
+
+################################################################################
+# Project Configuration
+# https://goreleaser.com/customization/project/
+################################################################################
+project_name: "clankerwatch"
+
+################################################################################
+# Verifiable Builds (Supply Chain Security)
+# https://goreleaser.com/customization/builds/verifiable_builds/
+################################################################################
+gomod:
+  proxy: true
+  env:
+    - GOPROXY=https://proxy.golang.org,direct
+    - GOSUMDB=sum.golang.org
+
+################################################################################
+# Go Binary Build Configuration
+# https://goreleaser.com/customization/builds/go/
+#
+# Linux only: the daemon serves a KDE Plasma widget over the session bus.
+################################################################################
+builds:
+  - id: "clankerwatch-binary"
+    main: "main.go"
+    binary: "clankerwatch"
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X github.com/nicholas-fedor/clankerwatch/internal/version.Version={{.Version}}
+      - -X github.com/nicholas-fedor/clankerwatch/internal/version.CommitSHA={{.Commit}}
+      - -X github.com/nicholas-fedor/clankerwatch/internal/version.BuildTime={{.Date}}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+################################################################################
+# Binary Archive Configuration
+# https://goreleaser.com/customization/package/archives/
+#
+# The archive carries the unit files and the widget so a manual install has
+# everything the packages install.
+################################################################################
+archives:
+  - formats: ["tar.gz"]
+    name_template: >-
+      {{- .ProjectName }}_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}amd64
+      {{- else if eq .Arch "arm64" }}arm64v8
+      {{- else }}{{ .Arch }}{{ end }}_
+      {{- .Version -}}
+    files:
+      - LICENSE.md
+      - README.md
+      - build/package/**/*
+      - plasmoid/**/*
+    builds_info:
+      mtime: "{{ .CommitDate }}"
+
+################################################################################
+# Linux Distro Packages (nFPM)
+# https://goreleaser.com/customization/package/nfpm/
+#
+# Attaches .deb, .rpm, .apk, and Arch packages to the GitHub Release.
+# File names match the archives (no ConventionalFileName: GitHub rewrites
+# '~' and would invalidate checksums).
+#
+# The unit has no [Install] section: the D-Bus activation file starts it when
+# the widget first reads the bus name, so nothing needs enabling.
+################################################################################
+nfpms:
+  - id: clankerwatch
+    package_name: clankerwatch
+    ids:
+      - clankerwatch-binary
+    vendor: Nicholas Fedor
+    homepage: https://github.com/nicholas-fedor/clankerwatch
+    maintainer: Nicholas Fedor <nick@nickfedor.com>
+    description: Claude Code subscription usage in the KDE Plasma panel.
+    license: AGPL-3.0-or-later
+    formats:
+      - deb
+      - rpm
+      - apk
+      - archlinux
+    bindir: /usr/bin
+    section: utils
+    priority: optional
+    mtime: "{{ .CommitDate }}"
+    archlinux:
+      packager: Nicholas Fedor <nick@nickfedor.com>
+
+    file_name_template: >-
+      {{- .PackageName }}_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}amd64
+      {{- else if eq .Arch "arm64" }}arm64v8
+      {{- else }}{{ .Arch }}{{ end }}_
+      {{- .Version }}
+    contents:
+      - src: build/package/systemd/clankerwatch.service
+        dst: /usr/lib/systemd/user/clankerwatch.service
+        file_info:
+          mode: 0644
+      - src: build/package/dbus/com.nickfedor.ClankerWatch1.service
+        dst: /usr/share/dbus-1/services/com.nickfedor.ClankerWatch1.service
+        file_info:
+          mode: 0644
+      - src: plasmoid/
+        dst: /usr/share/plasma/plasmoids/com.nickfedor.clankerwatch/
+        type: tree
+        file_info:
+          mode: 0644
+      - src: build/package/config.example.yaml
+        dst: /usr/share/doc/clankerwatch/config.example.yaml
+        file_info:
+          mode: 0644
+      - src: README.md
+        dst: /usr/share/doc/clankerwatch/README.md
+        file_info:
+          mode: 0644
+      - src: LICENSE.md
+        dst: /usr/share/doc/clankerwatch/LICENSE
+        file_info:
+          mode: 0644
+
+################################################################################
+# Source Archive Configuration
+################################################################################
+source:
+  enabled: true
+  name_template: "clankerwatch.src"
+
+################################################################################
+# Checksums Configuration
+# https://goreleaser.com/customization/package/checksum/
+################################################################################
+checksum:
+  name_template: "checksums.txt"
+
+################################################################################
+# Software Bill of Materials (SBOM) Configuration
+# https://goreleaser.com/customization/sbom/
+################################################################################
+sboms:
+  - id: binaries
+    artifacts: archive
+  - id: source
+    artifacts: source
+
+################################################################################
+# Signing Configuration (Cosign - Keyless OIDC)
+# https://goreleaser.com/customization/sign/
+################################################################################
+signs:
+  - id: cosign-checksums
+    cmd: cosign
+    args:
+      - "sign-blob"
+      - "--bundle=${signature}"
+      - "${artifact}"
+      - "--yes"
+    artifacts: checksum
+    output: true
+
+################################################################################
+# Changelog Configuration
+# https://goreleaser.com/customization/changelog/
+################################################################################
+changelog:
+  disable: true

@@ -1,0 +1,82 @@
+---
+name: Run Security Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/security.yaml
+      - internal/**
+      - tools/**
+      - go.mod
+      - go.sum
+      - main.go
+  schedule:
+    - cron: "0 0 * * *"
+
+env:
+  OUTPUT_FILE: results.sarif
+
+permissions:
+  contents: read # Set default read-only permissions
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gosec:
+    name: Run gosec Scanner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # For code checkout
+      security-events: write # For uploading SARIF results
+    steps:
+      - name: Harden the Runner (Step Security)
+        uses: step-security/harden-runner@351661ca32ac09a36dc5ee2d536e3128f2a3c8ed # v2.22.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout Repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@deb54465fea23d19a77f037e11e6589021f8501d # v2.29.0
+        with:
+          args: "-exclude-generated -no-fail -fmt sarif -out ${{ env.OUTPUT_FILE }} ./..."
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          sarif_file: ${{ env.OUTPUT_FILE }}
+          category: gosec-sarif
+
+  govulncheck:
+    name: Run govulncheck Scanner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # For code checkout
+      security-events: write # For uploading SARIF results
+    steps:
+      - name: Harden the Runner (Step Security)
+        uses: step-security/harden-runner@351661ca32ac09a36dc5ee2d536e3128f2a3c8ed # v2.22.0
+        with:
+          egress-policy: audit
+
+      - name: Run govulncheck
+        id: govulncheck
+        uses: nicholas-fedor/govulncheck-action@2e8328bfd2a2259f6b48ad47edc8101c86e74883 # v1.0.5
+        with:
+          output-format: sarif
+          output-file: ${{ env.OUTPUT_FILE }}
+          go-version-file: "go.mod"
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          sarif_file: ${{ env.OUTPUT_FILE }}
+          category: govulncheck-sarif

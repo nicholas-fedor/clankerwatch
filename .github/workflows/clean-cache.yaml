@@ -1,0 +1,46 @@
+---
+name: Cleanup GH Actions Cache
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Ref whose cache entries to delete, such as refs/pull/12/merge"
+        required: true
+        type: string
+  pull_request:
+    types:
+      - closed
+
+permissions:
+  contents: read # Set default read-only permissions
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || inputs.branch }}
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    name: Cleanup Cache
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # For code checkout
+      actions: write # For deleting cache entries
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged
+    steps:
+      - name: Harden the Runner (Step Security)
+        uses: step-security/harden-runner@351661ca32ac09a36dc5ee2d536e3128f2a3c8ed # v2.22.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout Repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Clean Cache
+        uses: ./.github/actions/clean-cache # zizmor: ignore[self-repository] actionlint rejects $/ until rhysd/actionlint#711
+        with:
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+          gh-repo: ${{ github.repository }}
+          branch: ${{ inputs.branch || format('refs/pull/{0}/merge', github.event.pull_request.number) }}

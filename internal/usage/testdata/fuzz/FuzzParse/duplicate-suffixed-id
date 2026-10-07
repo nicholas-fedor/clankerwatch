@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("{\"limits\":[{\"kind\":\"monthly#2\"},{\"kind\":\"monthly\"},{\"kind\":\"monthly\"}]}")

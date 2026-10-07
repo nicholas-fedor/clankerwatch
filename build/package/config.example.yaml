@@ -1,0 +1,32 @@
+# clankerwatch settings, normally ~/.config/clankerwatch/config.yaml.
+# The widget's settings page edits this file and applies changes at once.
+# After editing it by hand, apply it with: systemctl --user reload clankerwatch
+#
+# Every key is optional and an absent key keeps its default. Unknown keys are
+# errors, so a typo never passes silently. A CLANKERWATCH_* environment
+# variable overrides a key here, and a command-line flag overrides both.
+
+# hybrid: poll the usage endpoint with Claude Code's login (read-only) and
+#         adopt Claude Code's own cached result when it is fresher.
+# cache-only: never read credentials or use the network.
+#mode: hybrid
+
+# Polling interval while Claude Code is active (minimum 2m) and while idle.
+# The idle interval cannot be shorter than the active one.
+#interval: 5m
+#idleInterval: 20m
+
+# Alert thresholds in percent. An empty list turns threshold alerts off.
+#notify: [80, 95]
+
+# Alert when the Claude Code login needs attention.
+#notifyAuth: true
+
+# debug, info, warn or error.
+#logLevel: info
+
+# Override the state directory, default $XDG_STATE_HOME/clankerwatch.
+#stateDir: ""
+
+# Only when Claude Code runs with a custom config directory.
+#claudeConfigDir: ""
