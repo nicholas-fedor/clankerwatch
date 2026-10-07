@@ -23,6 +23,9 @@ ExecReload=kill -HUP $MAINPID
 Environment=GOMAXPROCS=2 GOMEMLIMIT=24MiB
 Restart=on-failure
 RestartSec=10s
+# Exit status 2 is an invalid setting. Restarting cannot fix the settings, so
+# the unit stays failed with the error in the journal instead of looping.
+RestartPreventExitStatus=2
 Slice=background.slice
 MemoryHigh=32M
 MemoryMax=64M
