@@ -10,12 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Chores
 
+- **deps:** Update go module directive to v1.27.2 by @renovate[bot] in [#7](https://github.com/nicholas-fedor/clankerwatch/pull/7)
+- **deps:** Update nicholas-fedor/actionlint-action action to v1.0.19 by @renovate[bot] in [#8](https://github.com/nicholas-fedor/clankerwatch/pull/8)
 - **deps:** Update github/codeql-action action to v4.38.3 by @renovate[bot] in [#5](https://github.com/nicholas-fedor/clankerwatch/pull/5)
 - **deps:** Update actions/upload-artifact action to v7.0.2 by @renovate[bot] in [#4](https://github.com/nicholas-fedor/clankerwatch/pull/4)
 
 ### New Contributors
 
-- @renovate[bot] made their first contribution in [#5](https://github.com/nicholas-fedor/clankerwatch/pull/5)
+- @renovate[bot] made their first contribution in [#7](https://github.com/nicholas-fedor/clankerwatch/pull/7)
 
 ## [0.1.1] - 2026-10-07
 
