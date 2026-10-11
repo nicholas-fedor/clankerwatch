@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Chores
 
+- **deps:** Update module github.com/godbus/dbus/v5 to v5.2.3 by @renovate[bot] in [#16](https://github.com/nicholas-fedor/clankerwatch/pull/16)
 - **deps:** Update nicholas-fedor/govulncheck-action action to v1.1.0 by @renovate[bot] in [#14](https://github.com/nicholas-fedor/clankerwatch/pull/14)
 - **deps:** Update module golang.org/x/sys to v0.49.0 by @renovate[bot] in [#13](https://github.com/nicholas-fedor/clankerwatch/pull/13)
 - **deps:** Update go module directive to v1.27.2 by @renovate[bot] in [#11](https://github.com/nicholas-fedor/clankerwatch/pull/11)
@@ -21,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New Contributors
 
-- @renovate[bot] made their first contribution in [#14](https://github.com/nicholas-fedor/clankerwatch/pull/14)
+- @renovate[bot] made their first contribution in [#16](https://github.com/nicholas-fedor/clankerwatch/pull/16)
 
 ## [0.1.1] - 2026-10-07
 
