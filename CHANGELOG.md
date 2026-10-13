@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Chores
 
+- **deps:** Update module github.com/stretchr/objx to v0.7.0 by @renovate[bot] in [#23](https://github.com/nicholas-fedor/clankerwatch/pull/23)
 - **deps:** Update goreleaser/goreleaser-action action to v7.3.0 by @renovate[bot] in [#21](https://github.com/nicholas-fedor/clankerwatch/pull/21)
 - **deps:** Update nicholas-fedor/govulncheck-action action to v1.1.1 by @renovate[bot] in [#20](https://github.com/nicholas-fedor/clankerwatch/pull/20)
 - **deps:** Update ossf/scorecard-action action to v2.5.0 by @renovate[bot] in [#18](https://github.com/nicholas-fedor/clankerwatch/pull/18)
@@ -25,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New Contributors
 
-- @renovate[bot] made their first contribution in [#21](https://github.com/nicholas-fedor/clankerwatch/pull/21)
+- @renovate[bot] made their first contribution in [#23](https://github.com/nicholas-fedor/clankerwatch/pull/23)
 
 ## [0.1.1] - 2026-10-07
 
