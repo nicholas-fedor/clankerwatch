@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Chores
 
+- **deps:** Update module github.com/stretchr/objx to v0.8.0 by @renovate[bot] in [#27](https://github.com/nicholas-fedor/clankerwatch/pull/27)
 - **deps:** Update module github.com/godbus/dbus/v5 to v5.2.4 by @renovate[bot] in [#25](https://github.com/nicholas-fedor/clankerwatch/pull/25)
 - **deps:** Update module github.com/stretchr/objx to v0.7.0 by @renovate[bot] in [#23](https://github.com/nicholas-fedor/clankerwatch/pull/23)
 - **deps:** Update goreleaser/goreleaser-action action to v7.3.0 by @renovate[bot] in [#21](https://github.com/nicholas-fedor/clankerwatch/pull/21)
@@ -27,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New Contributors
 
-- @renovate[bot] made their first contribution in [#25](https://github.com/nicholas-fedor/clankerwatch/pull/25)
+- @renovate[bot] made their first contribution in [#27](https://github.com/nicholas-fedor/clankerwatch/pull/27)
 
 ## [0.1.1] - 2026-10-07
 
