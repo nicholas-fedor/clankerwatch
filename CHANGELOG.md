@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Chores
 
+- **deps:** Update github/codeql-action action to v4.39.0 by @renovate[bot] in [#29](https://github.com/nicholas-fedor/clankerwatch/pull/29)
 - **deps:** Update module github.com/stretchr/objx to v0.8.0 by @renovate[bot] in [#27](https://github.com/nicholas-fedor/clankerwatch/pull/27)
 - **deps:** Update module github.com/godbus/dbus/v5 to v5.2.4 by @renovate[bot] in [#25](https://github.com/nicholas-fedor/clankerwatch/pull/25)
 - **deps:** Update module github.com/stretchr/objx to v0.7.0 by @renovate[bot] in [#23](https://github.com/nicholas-fedor/clankerwatch/pull/23)
@@ -28,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New Contributors
 
-- @renovate[bot] made their first contribution in [#27](https://github.com/nicholas-fedor/clankerwatch/pull/27)
+- @renovate[bot] made their first contribution in [#29](https://github.com/nicholas-fedor/clankerwatch/pull/29)
 
 ## [0.1.1] - 2026-10-07
 
