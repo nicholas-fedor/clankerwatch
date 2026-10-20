@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Chores
 
+- **deps:** Update go module directive to v1.27.3 by @renovate[bot] in [#35](https://github.com/nicholas-fedor/clankerwatch/pull/35)
+- **deps:** Update go module directive to v1.27.3 by @renovate[bot] in [#31](https://github.com/nicholas-fedor/clankerwatch/pull/31)
 - **deps:** Update step-security/harden-runner action to v2.22.2 by @renovate[bot] in [#32](https://github.com/nicholas-fedor/clankerwatch/pull/32)
 - **deps:** Update github/codeql-action action to v4.39.0 by @renovate[bot] in [#29](https://github.com/nicholas-fedor/clankerwatch/pull/29)
 - **deps:** Update module github.com/stretchr/objx to v0.8.0 by @renovate[bot] in [#27](https://github.com/nicholas-fedor/clankerwatch/pull/27)
@@ -27,6 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **deps:** Update nicholas-fedor/actionlint-action action to v1.0.19 by @renovate[bot] in [#8](https://github.com/nicholas-fedor/clankerwatch/pull/8)
 - **deps:** Update github/codeql-action action to v4.38.3 by @renovate[bot] in [#5](https://github.com/nicholas-fedor/clankerwatch/pull/5)
 - **deps:** Update actions/upload-artifact action to v7.0.2 by @renovate[bot] in [#4](https://github.com/nicholas-fedor/clankerwatch/pull/4)
+
+### New Contributors
+
+- @renovate[bot] made their first contribution in [#35](https://github.com/nicholas-fedor/clankerwatch/pull/35)
 
 ## [0.1.1] - 2026-10-07
 
