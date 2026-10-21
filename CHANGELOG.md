@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Chores
 
+- **deps:** Update nicholas-fedor/govulncheck-action action to v1.1.2 by @renovate[bot] in [#37](https://github.com/nicholas-fedor/clankerwatch/pull/37)
+- **deps:** Update github/codeql-action action to v4.39.1 by @renovate[bot] in [#36](https://github.com/nicholas-fedor/clankerwatch/pull/36)
 - **deps:** Update go module directive to v1.27.3 by @renovate[bot] in [#35](https://github.com/nicholas-fedor/clankerwatch/pull/35)
 - **deps:** Update go module directive to v1.27.3 by @renovate[bot] in [#31](https://github.com/nicholas-fedor/clankerwatch/pull/31)
 - **deps:** Update step-security/harden-runner action to v2.22.2 by @renovate[bot] in [#32](https://github.com/nicholas-fedor/clankerwatch/pull/32)
@@ -32,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New Contributors
 
-- @renovate[bot] made their first contribution in [#35](https://github.com/nicholas-fedor/clankerwatch/pull/35)
+- @renovate[bot] made their first contribution in [#37](https://github.com/nicholas-fedor/clankerwatch/pull/37)
 
 ## [0.1.1] - 2026-10-07
 
