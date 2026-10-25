@@ -68,14 +68,14 @@ func FuzzReadCredentials(f *testing.F) {
 				t.Fatalf("error leaks the token: %v", err)
 			}
 
-			if oauth.AccessToken != "" || !oauth.ExpiresAt.IsZero() {
+			if !oauth.AccessToken.IsZero() || !oauth.ExpiresAt.IsZero() {
 				t.Fatalf("failed read returned a login: %+v", oauth)
 			}
 
 			return
 		}
 
-		if oauth.AccessToken == "" {
+		if oauth.AccessToken.IsZero() {
 			t.Fatal("successful read without a token")
 		}
 

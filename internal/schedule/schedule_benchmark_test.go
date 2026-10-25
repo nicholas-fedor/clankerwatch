@@ -28,7 +28,7 @@ func BenchmarkDecide(b *testing.B) {
 		StartedAt:   now.Add(-time.Hour),
 		NextReset:   now.Add(time.Hour),
 		OAuth: claudecode.OAuth{
-			AccessToken: "token",
+			AccessToken: claudecode.NewSecret("token"),
 			ExpiresAt:   now.Add(8 * time.Hour),
 			Scopes:      []string{"user:inference", "user:profile"},
 		},

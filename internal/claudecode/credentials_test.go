@@ -87,7 +87,7 @@ func TestReadCredentials(t *testing.T) {
 			want: OAuth{
 				ExpiresAt:        time.UnixMilli(testExpiresMs),
 				LoginExpiresAt:   time.UnixMilli(testLoginExpiresMs),
-				AccessToken:      Secret(testToken),
+				AccessToken:      NewSecret(testToken),
 				SubscriptionType: "max",
 				RateLimitTier:    "default_claude_max_5x",
 				Scopes:           []string{"user:inference", "user:profile"},
@@ -96,7 +96,7 @@ func TestReadCredentials(t *testing.T) {
 		{
 			name:    "no login expiry",
 			content: `{"claudeAiOauth":{"accessToken":"tok","expiresAt":1000}}`,
-			want:    OAuth{AccessToken: "tok", ExpiresAt: time.UnixMilli(1000)},
+			want:    OAuth{AccessToken: NewSecret("tok"), ExpiresAt: time.UnixMilli(1000)},
 		},
 		{name: "no subscription login", content: `{"mcpOAuth":{}}`, failure: true, wantErr: ErrLoggedOut},
 		{name: "null subscription login", content: `{"claudeAiOauth":null}`, failure: true, wantErr: ErrLoggedOut},
@@ -318,9 +318,9 @@ func TestOAuthUsableAt(t *testing.T) {
 		skew  time.Duration
 		want  bool
 	}{
-		{name: "well before expiry", oauth: OAuth{AccessToken: "tok", ExpiresAt: expires}, skew: time.Minute, want: true},
-		{name: "inside the skew", oauth: OAuth{AccessToken: "tok", ExpiresAt: expires}, skew: 10 * time.Minute},
-		{name: "expired", oauth: OAuth{AccessToken: "tok", ExpiresAt: now.Add(-time.Second)}},
+		{name: "well before expiry", oauth: OAuth{AccessToken: NewSecret("tok"), ExpiresAt: expires}, skew: time.Minute, want: true},
+		{name: "inside the skew", oauth: OAuth{AccessToken: NewSecret("tok"), ExpiresAt: expires}, skew: 10 * time.Minute},
+		{name: "expired", oauth: OAuth{AccessToken: NewSecret("tok"), ExpiresAt: now.Add(-time.Second)}},
 		{name: "no token", oauth: OAuth{ExpiresAt: expires}},
 	}
 

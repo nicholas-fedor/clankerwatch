@@ -32,7 +32,7 @@ var errUnreadable = errors.New("permission denied")
 //   - claudecode.OAuth: a token with the profile scope, valid for hours.
 func usableLogin() claudecode.OAuth {
 	return claudecode.OAuth{
-		AccessToken:      "token",
+		AccessToken:      claudecode.NewSecret("token"),
 		ExpiresAt:        testStart.Add(8 * time.Hour),
 		LoginExpiresAt:   testStart.Add(30 * 24 * time.Hour),
 		Scopes:           []string{"user:inference", profileScope},
@@ -301,7 +301,7 @@ func TestDecide(t *testing.T) {
 		},
 		{
 			name:   "empty token counts as expiring",
-			mutate: func(in *Inputs) { in.OAuth.AccessToken = "" },
+			mutate: func(in *Inputs) { in.OAuth.AccessToken = claudecode.Secret{} },
 			want:   waitFor(GateTokenExpiring, probe),
 		},
 		{

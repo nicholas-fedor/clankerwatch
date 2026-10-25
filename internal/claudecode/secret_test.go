@@ -30,7 +30,7 @@ const (
 func TestSecretFormatVerbs(t *testing.T) {
 	t.Parallel()
 
-	secret := Secret(secretValue)
+	secret := NewSecret(secretValue)
 	oauth := OAuth{AccessToken: secret, SubscriptionType: "max"}
 
 	for _, verb := range []string{"%v", "%+v", "%#v", "%s", "%q", "%x", "%X", "%d", "%10.3s"} {
@@ -52,7 +52,7 @@ func TestSecretFormatVerbs(t *testing.T) {
 func TestSecretStringers(t *testing.T) {
 	t.Parallel()
 
-	secret := Secret(secretValue)
+	secret := NewSecret(secretValue)
 
 	assert.Equal(t, redacted, secret.String())
 	assert.Equal(t, redacted, secret.GoString())
@@ -62,11 +62,20 @@ func TestSecretStringers(t *testing.T) {
 	assert.Equal(t, secretValue, secret.Reveal())
 }
 
+// TestSecretIsZero tells an empty credential from a set one.
+func TestSecretIsZero(t *testing.T) {
+	t.Parallel()
+
+	assert.True(t, Secret{}.IsZero())
+	assert.True(t, NewSecret("").IsZero())
+	assert.False(t, NewSecret(secretValue).IsZero())
+}
+
 // TestSecretMarshal redacts JSON and text encodings, bare and nested.
 func TestSecretMarshal(t *testing.T) {
 	t.Parallel()
 
-	secret := Secret(secretValue)
+	secret := NewSecret(secretValue)
 
 	encoded, err := json.Marshal(secret)
 	require.NoError(t, err)
@@ -92,7 +101,7 @@ func TestSecretMarshal(t *testing.T) {
 func TestSecretSlog(t *testing.T) {
 	t.Parallel()
 
-	secret := Secret(secretValue)
+	secret := NewSecret(secretValue)
 
 	for _, tt := range []struct {
 		handler func(buf *bytes.Buffer) slog.Handler

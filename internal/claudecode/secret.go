@@ -11,7 +11,15 @@ import (
 
 // Secret holds a credential and keeps it out of logs, formatted output, and
 // JSON. Only Reveal returns the value.
-type Secret string
+//
+// Secret is a struct rather than a string type. [encoding/json] writes map
+// keys of string kind verbatim without calling MarshalText, so a string-based
+// Secret used as a map key would leak. A struct also rules out converting a
+// Secret to a string to get around Reveal.
+type Secret struct {
+	// value is the credential.
+	value string
+}
 
 const (
 	// redacted replaces a Secret in every rendering.
@@ -20,6 +28,17 @@ const (
 	// redactedJSON is redacted encoded as a JSON string.
 	redactedJSON = `"` + redacted + `"`
 )
+
+// NewSecret wraps a credential in a Secret.
+//
+// Parameters:
+//   - value: the credential.
+//
+// Returns:
+//   - Secret: the credential, redacted in every rendering.
+func NewSecret(value string) Secret {
+	return Secret{value: value}
+}
 
 // Format writes the redaction marker for every fmt verb.
 //
@@ -35,6 +54,12 @@ func (Secret) Format(state fmt.State, _ rune) {
 // Returns:
 //   - string: the redaction marker.
 func (Secret) GoString() string { return redacted }
+
+// IsZero reports whether the Secret holds no credential.
+//
+// Returns:
+//   - bool: true when the credential is empty.
+func (s Secret) IsZero() bool { return s.value == "" }
 
 // LogValue returns the redaction marker for [log/slog].
 //
@@ -60,7 +85,7 @@ func (Secret) MarshalText() ([]byte, error) { return []byte(redacted), nil }
 //
 // Returns:
 //   - string: the credential.
-func (s Secret) Reveal() string { return string(s) }
+func (s Secret) Reveal() string { return s.value }
 
 // String returns the redaction marker.
 //

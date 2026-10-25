@@ -78,7 +78,7 @@ func testPayload(tb testing.TB, session, weekly float64, resets time.Time) []byt
 //   - claudecode.OAuth: the login.
 func testLogin(expiresAt time.Time) claudecode.OAuth {
 	return claudecode.OAuth{
-		AccessToken:      "secret-token",
+		AccessToken:      claudecode.NewSecret("secret-token"),
 		ExpiresAt:        expiresAt,
 		LoginExpiresAt:   expiresAt.Add(30 * 24 * time.Hour),
 		Scopes:           []string{"user:profile"},

@@ -45,7 +45,7 @@ func newSimulation(active bool) *simulation {
 			StartedAt: start,
 			Active:    active,
 			OAuth: claudecode.OAuth{
-				AccessToken: "token",
+				AccessToken: claudecode.NewSecret("token"),
 				ExpiresAt:   start.Add(48 * time.Hour),
 				Scopes:      []string{"user:profile"},
 			},

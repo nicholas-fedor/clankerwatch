@@ -63,12 +63,11 @@ jobs:
           only-new-issues: false
 
       # betteralign replaces govet's fieldalignment, which deletes struct
-      # field comments. This is the check half of `task lint`.
+      # field comments. This is the check half of `task lint`. It tracks the
+      # latest release so its type checker keeps up with the Go toolchain.
       - name: Run betteralign
-        env:
-          BETTERALIGN_VERSION: v0.15.1
         run: |
-          go install "github.com/dkorunic/betteralign/cmd/betteralign@${BETTERALIGN_VERSION}"
+          go install github.com/dkorunic/betteralign/cmd/betteralign@latest
           betteralign ./...
 
       - name: Run go fix Modernizers
