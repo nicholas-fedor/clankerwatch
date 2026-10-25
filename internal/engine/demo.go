@@ -157,7 +157,7 @@ func (s *demoScript) Read() (claudecode.OAuth, error) {
 	}
 
 	login := claudecode.OAuth{
-		AccessToken:      "demo",
+		AccessToken:      claudecode.NewSecret("demo"),
 		ExpiresAt:        s.start.Add(demoTokenLife),
 		LoginExpiresAt:   s.start.Add(demoLoginLife),
 		Scopes:           []string{demoScope},

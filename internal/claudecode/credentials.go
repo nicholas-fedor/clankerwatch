@@ -135,7 +135,7 @@ func (o OAuth) HasScope(scope string) bool { return slices.Contains(o.Scopes, sc
 // Returns:
 //   - bool: true when the token can be used.
 func (o OAuth) UsableAt(now time.Time, skew time.Duration) bool {
-	return o.AccessToken != "" && now.Add(skew).Before(o.ExpiresAt)
+	return !o.AccessToken.IsZero() && now.Add(skew).Before(o.ExpiresAt)
 }
 
 // readCredentials parses the credentials file.
@@ -167,7 +167,7 @@ func readCredentials(path string) (OAuth, error) {
 	}
 
 	oauth := OAuth{
-		AccessToken:      Secret(login.AccessToken),
+		AccessToken:      NewSecret(login.AccessToken),
 		ExpiresAt:        time.UnixMilli(int64(login.ExpiresAt)),
 		LoginExpiresAt:   time.Time{},
 		Scopes:           login.Scopes,

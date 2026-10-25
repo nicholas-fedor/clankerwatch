@@ -199,7 +199,7 @@ func (r *recorder) first() string {
 //   - claudecode.OAuth: the login.
 func login(expiresAt time.Time) claudecode.OAuth {
 	return claudecode.OAuth{
-		AccessToken:      "token",
+		AccessToken:      claudecode.NewSecret("token"),
 		ExpiresAt:        expiresAt,
 		LoginExpiresAt:   expiresAt.Add(30 * 24 * time.Hour),
 		Scopes:           []string{"user:inference", "user:profile"},

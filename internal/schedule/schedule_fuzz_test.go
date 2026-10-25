@@ -65,7 +65,7 @@ func FuzzDecide(f *testing.F) {
 			NextReset:   fuzzTime(nextReset),
 			Backoff:     Backoff{Until: fuzzTime(backoffUntil), Kind: fuzzKinds[int(loginSel)%len(fuzzKinds)], Consecutive: 1},
 			OAuth: claudecode.OAuth{
-				AccessToken: "token",
+				AccessToken: claudecode.NewSecret("token"),
 				ExpiresAt:   fuzzTime(expiresAt),
 				Scopes:      []string{profileScope},
 			},
@@ -88,7 +88,7 @@ func FuzzDecide(f *testing.F) {
 		}
 
 		if loginSel&0x10 != 0 {
-			in.OAuth.AccessToken = ""
+			in.OAuth.AccessToken = claudecode.Secret{}
 		}
 
 		if blockSince != 0 {
