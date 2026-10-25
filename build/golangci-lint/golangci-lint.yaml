@@ -213,28 +213,27 @@ linters:
       # Default: [ switch ]
       check:
         - switch
-        - map
+        - mapliteral
       # Presence of "default" case in switch statements satisfies exhaustiveness,
       # even if all enum members are not listed.
       # Default: false
       default-signifies-exhaustive: true
-      # Enum members matching the supplied regex do not have to be listed in
-      # switch statements to satisfy exhaustiveness.
-      # Default: ""
-      # ignore-enum-members: "Example.+"
-      # Enum types matching the supplied regex do not have to be listed in
-      # switch statements to satisfy exhaustiveness.
-      # Default: ""
-      # ignore-enum-types: "Example.+"
+      # Constant names matched by regexp do not have to be included in case
+      # expressions.
+      # Default: []
+      # ignore-constants:
+      #   - "Example.+"
+      # Switch statements in which the type name is matched by regexp are not
+      # checked.
+      # Default: []
+      # ignore-types:
+      #   - "Example.+"
       # Consider enums only in package scopes, not in inner scopes.
       # Default: false
       package-scope-only: false
-      # Only run exhaustive check on switches with "//exhaustive:enforce" comment.
+      # Check only if it has "//exhaustive:enforce" comment.
       # Default: false
-      explicit-exhaustive-switch: false
-      # Only run exhaustive check on map literals with "//exhaustive:enforce" comment.
-      # Default: false
-      explicit-exhaustive-map: false
+      explicit-exhaustive: false
       # Switch statement requires default case even if exhaustive.
       # Default: false
       default-case-required: false
