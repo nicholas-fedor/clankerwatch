@@ -8,11 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Chores
+
+- **deps:** Update step-security/harden-runner action to v2.22.3 by @renovate[bot] in [#43](https://github.com/nicholas-fedor/clankerwatch/pull/43)
+
+## [0.1.2] - 2026-10-25
+
 ### Fixed
 
 - **claudecode:** Redact secrets used as json map keys by @nicholas-fedor in [#41](https://github.com/nicholas-fedor/clankerwatch/pull/41)
-
-## [0.1.2] - 2026-10-23
 
 ### Chores
 
