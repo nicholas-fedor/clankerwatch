@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Chores
 
+- **deps:** Update module go.yaml.in/yaml/v3 to v3.0.6 by @renovate[bot] in [#45](https://github.com/nicholas-fedor/clankerwatch/pull/45)
 - **deps:** Update step-security/harden-runner action to v2.22.3 by @renovate[bot] in [#43](https://github.com/nicholas-fedor/clankerwatch/pull/43)
 
 ## [0.1.2] - 2026-10-25
