@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Chores
 
+- **deps:** Update sigstore/cosign-installer action to v4.1.3 by @renovate[bot] in [#57](https://github.com/nicholas-fedor/clankerwatch/pull/57)
 - **deps:** Update github/codeql-action action to v4.39.3 by @renovate[bot] in [#55](https://github.com/nicholas-fedor/clankerwatch/pull/55)
 - **deps:** Update github/codeql-action action to v4.39.2 by @renovate[bot] in [#53](https://github.com/nicholas-fedor/clankerwatch/pull/53)
 - **deps:** Update module go.yaml.in/yaml/v4 to v4.0.0-rc.9 by @renovate[bot] in [#51](https://github.com/nicholas-fedor/clankerwatch/pull/51)
