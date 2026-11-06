@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **plasmoid:** Show the limits the account has in the panel by @nicholas-fedor in [#63](https://github.com/nicholas-fedor/clankerwatch/pull/63)
+
 ### Chores
 
 - **deps:** Update module github.com/spf13/pflag to v1.1.0 by @renovate[bot] in [#62](https://github.com/nicholas-fedor/clankerwatch/pull/62)
