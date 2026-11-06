@@ -216,6 +216,28 @@ func TestParseMergesMissingFlatBars(t *testing.T) {
 	assert.Equal(t, "Current week (Claude Code)", got.Bars[2].Label)
 }
 
+// TestParseWithoutSessionLimit covers an account with only weekly limits.
+//
+// A verified Ultra account gets a null five_hour window and no session row, so
+// no session bar may appear and the weekly limits come first.
+func TestParseWithoutSessionLimit(t *testing.T) {
+	t.Parallel()
+
+	got, err := Parse([]byte(`{
+		"five_hour": null,
+		"seven_day": {"utilization": 49, "resets_at": "2026-11-10T15:00:00Z"},
+		"limits": [
+			{"kind": "weekly_all", "group": "weekly", "percent": 49, "is_active": true},
+			{"kind": "weekly_scoped", "group": "weekly", "percent": 0, "scope": {"model": {"display_name": "Fable"}}}
+		]
+	}`))
+	require.NoError(t, err)
+
+	assert.Equal(t, []string{"weekly_all", "weekly_scoped:model:fable"}, barIDs(got.Bars))
+	assert.Equal(t, "7d", got.Bars[0].Short)
+	assert.Equal(t, "Fable", got.Bars[1].Short)
+}
+
 // TestParseLimitsWinOverFlat keeps the limits list authoritative.
 //
 // When the list has its own session bar, the flat window must not add a

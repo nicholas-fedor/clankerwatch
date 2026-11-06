@@ -112,7 +112,7 @@ After pulling new changes, `task update` reinstalls, restarts the daemon, and re
 
 1. Right-click an empty part of a panel and choose **Add Widgets**.
 2. Search for **Clanker Watch** and drag it onto the panel, or double-click it.
-3. The panel shows the 5-hour session and the weekly bar as soon as the daemon has data. [Getting started](/getting-started/) explains the first run.
+3. The panel shows your limits as soon as the daemon has data. [Getting started](/getting-started/) explains the first run.
 
 If Clanker Watch is missing from the list right after installing, restart plasmashell so it rescans its widgets:
 

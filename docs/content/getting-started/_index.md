@@ -36,10 +36,14 @@ The unit belongs to `graphical-session.target`, so it stops when you log out. If
 
 ![The panel view at normal, warning, and critical usage](/images/panel.png)
 
-The panel shows two rows, each with a short label, a bar, and a percentage:
+The panel shows the first two limits your account has, each with a short label, a bar, and a percentage. Which limits those are depends on what the usage endpoint reports for your account:
 
-- **5h**: the current 5-hour session.
-- **7d**: the weekly limit.
+| Account | Rows |
+| --- | --- |
+| With a session limit, such as Pro or Max | **5h** for the current 5-hour session, and **7d** for the weekly limit |
+| Without a session limit, such as a verified Ultra account | **7d** for the weekly limit, and **Fable** for the weekly Fable limit |
+
+The other limits stay in the popup and the tooltip. Until the daemon has data, or while Claude Code is signed out, the panel shows a single **7d** row with a dash.
 
 On a vertical panel each percentage sits over its bar. Fonts and colors come from your Plasma theme. A bar turns to the theme's warning color at the lower [alert threshold](/configuration/#alert-thresholds) and to its critical color at the higher one, 80% and 95% by default.
 
@@ -54,7 +58,7 @@ On a vertical panel each percentage sits over its bar. Fonts and colors come fro
 
 ![The popup with the session, weekly, and per-model limits](/images/popup.png)
 
-The popup lists every limit the usage endpoint reports, in the order Claude Code's `/usage` shows them. That includes the session, the weekly limit for all models, and any per-model weekly limits. Each row shows the label, the percentage used, and when the window resets, such as "Resets in 2 hr 14 min".
+The popup lists every limit the usage endpoint reports, in the order Claude Code's `/usage` shows them. That includes the session on accounts that have one, the weekly limit for all models, and any per-model weekly limits. Each row shows the label, the percentage used, and when the window resets, such as "Resets in 2 hr 14 min".
 
 When your plan has extra usage, a last row shows how much of the monthly limit you used, or that the limit was reached.
 
@@ -86,7 +90,7 @@ clankerwatch notify-test
 
 ## Demo mode
 
-`clankerwatch demo` serves canned usage on the bus and cycles through every state the widget shows, about every 12 seconds: normal, warning, critical, extra usage, rate limited, paused, and signed out. The real engine runs on scripted data, so alerts fire as they would for real. Nothing reads Claude Code's files or uses the network.
+`clankerwatch demo` serves canned usage on the bus and cycles through every state the widget shows, about every 12 seconds: normal, warning, critical, extra usage, no session limit, rate limited, paused, and signed out. The real engine runs on scripted data, so alerts fire as they would for real. Nothing reads Claude Code's files or uses the network.
 
 Only one process can own the bus name, so stop the service first:
 

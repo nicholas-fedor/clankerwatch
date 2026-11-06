@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/nicholas-fedor/clankerwatch/internal/claudecode"
@@ -20,6 +21,7 @@ import (
 type demoScene struct {
 	session, weekly, fable float64
 	extra                  bool
+	noSession              bool
 	rateLimited            bool
 	expiring               bool
 	loggedOut              bool
@@ -65,13 +67,38 @@ const (
 //
 //nolint:mnd // The percentages are canned demo values.
 var demoScenes = []demoScene{
-	{session: 66, weekly: 17, fable: 0, extra: false, rateLimited: false, expiring: false, loggedOut: false},
-	{session: 84, weekly: 41, fable: 5, extra: false, rateLimited: false, expiring: false, loggedOut: false},
-	{session: 97, weekly: 88, fable: 12, extra: false, rateLimited: false, expiring: false, loggedOut: false},
-	{session: 66, weekly: 17, fable: 0, extra: true, rateLimited: false, expiring: false, loggedOut: false},
-	{session: 0, weekly: 0, fable: 0, extra: false, rateLimited: true, expiring: false, loggedOut: false},
-	{session: 0, weekly: 0, fable: 0, extra: false, rateLimited: false, expiring: true, loggedOut: false},
-	{session: 0, weekly: 0, fable: 0, extra: false, rateLimited: false, expiring: false, loggedOut: true},
+	{
+		session: 66, weekly: 17, fable: 0,
+		extra: false, noSession: false, rateLimited: false, expiring: false, loggedOut: false,
+	},
+	{
+		session: 84, weekly: 41, fable: 5,
+		extra: false, noSession: false, rateLimited: false, expiring: false, loggedOut: false,
+	},
+	{
+		session: 97, weekly: 88, fable: 12,
+		extra: false, noSession: false, rateLimited: false, expiring: false, loggedOut: false,
+	},
+	{
+		session: 66, weekly: 17, fable: 0,
+		extra: true, noSession: false, rateLimited: false, expiring: false, loggedOut: false,
+	},
+	{
+		session: 0, weekly: 49, fable: 8,
+		extra: false, noSession: true, rateLimited: false, expiring: false, loggedOut: false,
+	},
+	{
+		session: 0, weekly: 0, fable: 0,
+		extra: false, noSession: false, rateLimited: true, expiring: false, loggedOut: false,
+	},
+	{
+		session: 0, weekly: 0, fable: 0,
+		extra: false, noSession: false, rateLimited: false, expiring: true, loggedOut: false,
+	},
+	{
+		session: 0, weekly: 0, fable: 0,
+		extra: false, noSession: false, rateLimited: false, expiring: false, loggedOut: true,
+	},
 }
 
 // Demo returns options and dependencies that replay canned usage through the
@@ -148,7 +175,8 @@ func (s *demoScript) Fetch(context.Context, string) ([]byte, error) {
 // Read returns the current scene's login.
 //
 // Returns:
-//   - claudecode.OAuth: a Pro login, expiring soon in the paused scene.
+//   - claudecode.OAuth: a Pro login, except for the top tier in the scene
+//     without a session limit, and expiring soon in the paused scene.
 //   - error: claudecode.ErrLoggedOut in the signed-out scene.
 func (s *demoScript) Read() (claudecode.OAuth, error) {
 	scene := s.scene()
@@ -164,6 +192,11 @@ func (s *demoScript) Read() (claudecode.OAuth, error) {
 		SubscriptionType: "pro",
 		RateLimitTier:    "default_claude_pro",
 	}
+	if scene.noSession {
+		login.SubscriptionType = "max"
+		login.RateLimitTier = "default_claude_max_20x"
+	}
+
 	if scene.expiring {
 		login.ExpiresAt = s.now().Add(demoExpiringIn)
 	}
@@ -201,23 +234,32 @@ func demoPayload(start time.Time, scene demoScene) []byte {
 	}
 
 	session, week := at(demoSessionReset), at(demoWeeklyReset)
-	body := map[string]any{
-		"five_hour": map[string]any{"utilization": scene.session, demoResetsAt: session},
-		"seven_day": map[string]any{"utilization": scene.weekly, demoResetsAt: week},
-		"limits": []map[string]any{
-			{
-				"kind": "session", "group": "session", "percent": scene.session,
-				"severity": severity(scene.session), demoResetsAt: session,
-			},
-			{
-				"kind": "weekly_all", "group": "weekly", "percent": scene.weekly,
-				"severity": severity(scene.weekly), demoResetsAt: week, "is_active": true,
-			},
-			{
-				"kind": "weekly_scoped", "group": "weekly", "percent": scene.fable, "severity": "normal",
-				demoResetsAt: week, "scope": map[string]any{"model": map[string]any{"display_name": "Fable"}},
-			},
+	limits := []map[string]any{
+		{
+			"kind": "weekly_all", "group": "weekly", "percent": scene.weekly,
+			"severity": severity(scene.weekly), demoResetsAt: week, "is_active": true,
 		},
+		{
+			"kind": "weekly_scoped", "group": "weekly", "percent": scene.fable, "severity": "normal",
+			demoResetsAt: week, "scope": map[string]any{"model": map[string]any{"display_name": "Fable"}},
+		},
+	}
+
+	// An account without a session limit gets a null window and no session row.
+	var fiveHour map[string]any
+
+	if !scene.noSession {
+		fiveHour = map[string]any{"utilization": scene.session, demoResetsAt: session}
+		limits = slices.Insert(limits, 0, map[string]any{
+			"kind": "session", "group": "session", "percent": scene.session,
+			"severity": severity(scene.session), demoResetsAt: session,
+		})
+	}
+
+	body := map[string]any{
+		"five_hour": fiveHour,
+		"seven_day": map[string]any{"utilization": scene.weekly, demoResetsAt: week},
+		"limits":    limits,
 		"extra_usage": map[string]any{
 			"is_enabled": scene.extra, "monthly_limit": demoMonthlyLimit, "used_credits": demoUsedCredits,
 			"currency": "USD", "decimal_places": demoDecimals,

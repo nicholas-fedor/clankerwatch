@@ -27,9 +27,6 @@ QtObject {
     readonly property bool dimBars: status === "token_expired" || (hasData && ageMs > 3600000)
     readonly property string plan: snapshot ? snapshot.plan : ""
 
-    readonly property var sessionBar: findBar("session")
-    readonly property var weeklyBar: findBar("weekly_all")
-
     // Rows for the popup, in the order the daemon sends them.
     readonly property var rows: {
         const out = [];
@@ -63,8 +60,16 @@ QtObject {
         return out;
     }
 
-    // The two bars the panel shows.
-    readonly property var panelBars: [panelEntry(sessionBar, "5h"), panelEntry(weeklyBar, "7d")]
+    // The panel has room for two rows, so it shows the first two limits the
+    // daemon sends, leaving out credit balances. An account without a session
+    // limit therefore shows its weekly limits. With nothing to show, a single
+    // weekly row stands in, because every paid plan has a weekly limit.
+    readonly property var panelBars: {
+        const trusted = hasData && status !== "logged_out" && status !== "auth_error";
+        const bars = trusted ? snapshot.bars.filter(b => !b.credit).slice(0, 2) : [];
+        return bars.length > 0 ? bars.map(b => panelEntry(b))
+                               : [{ short: "7d", percent: 0, percentText: "–", level: 0 }];
+    }
 
     // Replaces the bar list when there is nothing trustworthy to show.
     readonly property var emptyState: {
@@ -157,25 +162,10 @@ QtObject {
         return lines.join("\n");
     }
 
-    function findBar(kind: string): var {
-        if (!snapshot) {
-            return null;
-        }
-        for (const b of snapshot.bars) {
-            if (b.kind === kind) {
-                return b;
-            }
-        }
-        return null;
-    }
-
-    function panelEntry(b: var, short: string): var {
-        if (!b || !hasData || status === "logged_out" || status === "auth_error") {
-            return { short: short, percent: 0, percentText: "–", level: 0 };
-        }
+    function panelEntry(b: var): var {
         const reset = b.resetsAtMs > 0 && b.resetsAtMs <= now;
         const p = reset ? 0 : b.percent;
-        return { short: short, percent: p, percentText: percentText(p), level: reset ? 0 : b.level };
+        return { short: b.short, percent: p, percentText: percentText(p), level: reset ? 0 : b.level };
     }
 
     function percentText(p: real): string {

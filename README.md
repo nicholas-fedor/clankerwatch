@@ -82,7 +82,7 @@ task uninstall   # remove everything except your settings and state
 
 ## Usage
 
-- The panel shows the 5-hour session and the weekly limit. On a vertical panel each percentage sits over its bar.
+- The panel shows the first two limits your account has. That is usually the 5-hour session and the weekly limit. An account without a session limit, such as a verified Ultra account, shows its weekly limit and its Fable limit instead. On a vertical panel each percentage sits over its bar.
 - A left click opens the popup with every limit, its reset time, and extra usage. A middle click asks for a refresh.
 - Bars turn to the theme's warning and critical colors at the alert thresholds, 80% and 95% by default, and a desktop notification fires when usage crosses them.
 - Fonts and colors follow your Plasma theme.

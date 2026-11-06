@@ -10,8 +10,8 @@ import org.kde.plasma.components as PlasmaComponents3
 import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.plasmoid
 
-// Panel view: "5h ▕bar▏ 66%" over "7d ▕bar▏ 17%". The font follows the panel
-// thickness, and a vertical panel stacks percent over bar.
+// Panel view: up to two rows such as "5h ▕bar▏ 66%" over "7d ▕bar▏ 17%". The
+// font follows the panel thickness, and a vertical panel stacks percent over bar.
 MouseArea {
     id: compact
 
@@ -27,6 +27,13 @@ MouseArea {
     readonly property int rowHeight: Math.floor(height / 2)
     readonly property font rowFont: defaultFits ? Kirigami.Theme.defaultFont : Kirigami.Theme.smallFont
     readonly property int barWidth: Math.round(Kirigami.Units.gridUnit * (defaultFits ? 4 : 3.5))
+    // Both rows share the widest label's width so their bars line up. The cap
+    // keeps a long limit name from crowding the panel, and such a name elides.
+    readonly property int labelWidth: {
+        const metrics = defaultFits ? defaultMetrics : smallMetrics;
+        const widest = Math.max(...usage.panelBars.map(b => metrics.advanceWidth(b.short)));
+        return Math.min(Math.ceil(widest), Kirigami.Units.gridUnit * 4);
+    }
     readonly property string summary: usage.panelBars.map(b => b.short + " " + b.percentText).join(", ")
 
     acceptedButtons: Qt.LeftButton | Qt.MiddleButton
@@ -56,11 +63,6 @@ MouseArea {
     FontMetrics {
         id: smallMetrics
         font: Kirigami.Theme.smallFont
-    }
-    TextMetrics {
-        id: labelMetrics
-        font: compact.rowFont
-        text: "7d"
     }
     TextMetrics {
         id: percentMetrics
@@ -98,11 +100,12 @@ MouseArea {
                     RowLayout {
                         spacing: Kirigami.Units.smallSpacing
                         PlasmaComponents3.Label {
-                            Layout.preferredWidth: Math.ceil(labelMetrics.advanceWidth)
+                            Layout.preferredWidth: compact.labelWidth
                             text: entry.bar.short
                             font: compact.rowFont
                             color: Kirigami.Theme.disabledTextColor
                             textFormat: Text.PlainText
+                            elide: Text.ElideRight
                         }
                         UsageBar {
                             Layout.preferredWidth: compact.barWidth

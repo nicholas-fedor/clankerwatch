@@ -40,8 +40,8 @@ func NewCommand(ctx context.Context, demoer Demoer, resolve options.Resolve) *co
 		Use:   "demo",
 		Short: "Replay canned usage states for widget development",
 		Long: `Serve canned usage on the D-Bus session bus, cycling through every state the
-widget shows: normal, warning, critical, extra usage, rate limited, paused,
-and signed out, about every 12 seconds.
+widget shows: normal, warning, critical, extra usage, no session limit, rate
+limited, paused, and signed out, about every 12 seconds.
 
 The real engine runs on scripted data, so alerts fire as they would for real.
 Nothing reads Claude Code's files or uses the network. Stop the service first,
