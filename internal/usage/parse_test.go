@@ -284,6 +284,21 @@ func TestParseCreditBar(t *testing.T) {
 	assert.InDelta(t, 64.0, credit.Percent, 1e-9)
 }
 
+// TestParseCreditRowInLimits marks a credit row from the limits list as credit.
+//
+// Alerts and the panel both skip credit balances by this flag, so a row that
+// lost it would alert and take a panel row from a real limit.
+func TestParseCreditRowInLimits(t *testing.T) {
+	t.Parallel()
+
+	got, err := Parse([]byte(`{"limits":[{"kind":"weekly_all","percent":5},{"kind":"credit","percent":64}]}`))
+	require.NoError(t, err)
+	require.Len(t, got.Bars, 2)
+
+	assert.False(t, got.Bars[0].Credit)
+	assert.True(t, got.Bars[1].Credit)
+}
+
 // TestParseDuplicateIDs keeps repeated bars addressable.
 func TestParseDuplicateIDs(t *testing.T) {
 	t.Parallel()

@@ -130,7 +130,11 @@ func TestDemoScriptFetch(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, parsed.Bars, 2)
 	assert.Equal(t, "weekly_all", parsed.Bars[0].ID)
+	assert.Equal(t, "7d", parsed.Bars[0].Short)
+	assert.InDelta(t, 49.0, parsed.Bars[0].Percent, 0.001)
 	assert.Equal(t, "weekly_scoped:model:fable", parsed.Bars[1].ID)
+	assert.Equal(t, "Fable", parsed.Bars[1].Short)
+	assert.InDelta(t, 8.0, parsed.Bars[1].Percent, 0.001)
 
 	_, err = sceneScript(5).Fetch(t.Context(), "demo")
 
