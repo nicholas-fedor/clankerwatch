@@ -69,7 +69,7 @@ func testPayload(tb testing.TB, session, weekly float64, resets time.Time) []byt
 	return content
 }
 
-// testLogin returns a usable Max 5x login that expires at expiresAt.
+// testLogin returns a usable Max login that expires at expiresAt.
 //
 // Parameters:
 //   - expiresAt: the token expiry.

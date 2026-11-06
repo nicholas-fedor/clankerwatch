@@ -86,8 +86,7 @@ func TestDemoScriptRead(t *testing.T) {
 
 	login, err = sceneScript(4).Read()
 	require.NoError(t, err)
-	assert.Equal(t, "max", login.SubscriptionType)
-	assert.Equal(t, "default_claude_max_20x", login.RateLimitTier)
+	assert.Equal(t, "Ultra", planName(login.SubscriptionType, login.RateLimitTier))
 
 	expiring := sceneScript(6)
 	login, err = expiring.Read()

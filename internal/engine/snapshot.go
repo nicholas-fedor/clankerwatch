@@ -5,7 +5,6 @@ package engine
 
 import (
 	"encoding/json"
-	"regexp"
 	"strings"
 	"time"
 	"unicode"
@@ -102,8 +101,18 @@ const (
 	sourceClaudeCode = "claude-code"
 )
 
-// tierMultiplier finds the usage multiplier at the end of a rate limit tier.
-var tierMultiplier = regexp.MustCompile(`(\d+)x$`)
+// How Claude Code identifies the Ultra plan, which it reports as the max
+// subscription on its own rate limit tier.
+const (
+	// subscriptionMax is the subscription of both the Max and Ultra plans.
+	subscriptionMax = "max"
+
+	// tierUltra is the rate limit tier that sets Ultra apart from Max.
+	tierUltra = "default_claude_max_20x"
+
+	// planUltra is the Ultra plan's name.
+	planUltra = "Ultra"
+)
 
 // encodeSnapshot renders a snapshot as JSON.
 //
@@ -199,29 +208,30 @@ func extraToJSON(extra *usage.Extra, warn, crit float64) *extraJSON {
 	return out
 }
 
-// planName turns the subscription and rate limit tier into a label.
+// planName turns the subscription and rate limit tier into the plan's name.
 //
 // Parameters:
-//   - subscription: the plan, such as max.
-//   - tier: the tier, such as default_claude_max_5x.
+//   - subscription: the subscription, such as max.
+//   - tier: the tier, such as default_claude_max_20x.
 //
 // Returns:
-//   - string: a label such as "Max 5x", or empty.
+//   - string: Ultra for the max subscription on the Ultra tier, otherwise the
+//     capitalized subscription, or empty for a blank subscription.
 func planName(subscription, tier string) string {
-	plan := []rune(strings.ToLower(strings.TrimSpace(subscription)))
-	if len(plan) == 0 {
+	plan := strings.ToLower(strings.TrimSpace(subscription))
+	if plan == "" {
 		return ""
 	}
 
-	plan[0] = unicode.ToUpper(plan[0])
-
-	name := string(plan)
-
-	if match := tierMultiplier.FindStringSubmatch(tier); match != nil {
-		name += " " + match[1] + "x"
+	if plan == subscriptionMax && tier == tierUltra {
+		return planUltra
 	}
 
-	return name
+	name := []rune(plan)
+
+	name[0] = unicode.ToUpper(name[0])
+
+	return string(name)
 }
 
 // millis converts a time to epoch milliseconds.

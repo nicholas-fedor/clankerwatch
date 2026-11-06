@@ -175,7 +175,7 @@ func (s *demoScript) Fetch(context.Context, string) ([]byte, error) {
 // Read returns the current scene's login.
 //
 // Returns:
-//   - claudecode.OAuth: a Pro login, except for the top tier in the scene
+//   - claudecode.OAuth: a Pro login, except for an Ultra login in the scene
 //     without a session limit, and expiring soon in the paused scene.
 //   - error: claudecode.ErrLoggedOut in the signed-out scene.
 func (s *demoScript) Read() (claudecode.OAuth, error) {
@@ -193,8 +193,8 @@ func (s *demoScript) Read() (claudecode.OAuth, error) {
 		RateLimitTier:    "default_claude_pro",
 	}
 	if scene.noSession {
-		login.SubscriptionType = "max"
-		login.RateLimitTier = "default_claude_max_20x"
+		login.SubscriptionType = subscriptionMax
+		login.RateLimitTier = tierUltra
 	}
 
 	if scene.expiring {

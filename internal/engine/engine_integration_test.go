@@ -190,7 +190,7 @@ func (r *recorder) first() string {
 	return r.snaps[0]
 }
 
-// login returns a usable Max 5x login that expires at expiresAt.
+// login returns a usable Max login that expires at expiresAt.
 //
 // Parameters:
 //   - expiresAt: the token expiry.
@@ -925,7 +925,7 @@ func TestRunPublishesTheSnapshotShape(t *testing.T) {
 		assert.Empty(t, view.Message)
 		assert.Equal(t, "hybrid", view.Mode)
 		assert.True(t, view.Active)
-		assert.Equal(t, "Max 5x", view.Plan)
+		assert.Equal(t, "Max", view.Plan)
 		assert.Equal(t, t0.Add(8*time.Hour+30*24*time.Hour).UnixMilli(), view.LoginExpiresAtMs)
 		assert.InDelta(t, 80.0, view.WarnAt, 0.001)
 		assert.InDelta(t, 95.0, view.CritAt, 0.001)

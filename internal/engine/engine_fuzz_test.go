@@ -10,17 +10,20 @@ import (
 	"unicode/utf8"
 )
 
-// FuzzPlanName checks the plan label invariants on arbitrary login fields.
+// FuzzPlanName checks the plan name invariants on arbitrary login fields.
 //
 // The subscription and tier come from Claude Code's credentials file, so any
-// text must give a label without panicking. A blank subscription gives no
-// label. Otherwise the label starts with the capitalized first letter of the
-// subscription, and a tier ending in a multiplier adds it at the end.
+// text must give a name without panicking. A blank subscription gives no name,
+// and the max subscription on the Ultra tier gives Ultra. Otherwise the name
+// starts with the capitalized first letter of the subscription, and the tier
+// never shows in it.
 //
 // Parameters:
 //   - f: fuzzing handle.
 func FuzzPlanName(f *testing.F) {
 	f.Add("max", "default_claude_max_5x")
+	f.Add("max", "default_claude_max_20x")
+	f.Add(" MAX ", "default_claude_max_20x")
 	f.Add("pro", "default_claude_pro")
 	f.Add("", "default_claude_max_20x")
 	f.Add("  ", "")
@@ -41,6 +44,18 @@ func FuzzPlanName(f *testing.F) {
 			return
 		}
 
+		if trimmed == "max" && tier == "default_claude_max_20x" {
+			if got != "Ultra" {
+				t.Fatalf("the Ultra tier gave %q", got)
+			}
+
+			return
+		}
+
+		if got != planName(subscription, "") {
+			t.Fatalf("tier %q changed the name to %q", tier, got)
+		}
+
 		first, _ := utf8.DecodeRuneInString(trimmed)
 		gotFirst, _ := utf8.DecodeRuneInString(got)
 
@@ -53,10 +68,6 @@ func FuzzPlanName(f *testing.F) {
 		if unicode.IsLetter(first) && unicode.ToUpper(first) != first &&
 			!unicode.IsUpper(gotFirst) && !unicode.IsTitle(gotFirst) {
 			t.Fatalf("label %q does not start with an uppercase letter", got)
-		}
-
-		if match := tierMultiplier.FindStringSubmatch(tier); match != nil && !strings.HasSuffix(got, " "+match[1]+"x") {
-			t.Fatalf("label %q lacks the multiplier of tier %q", got, tier)
 		}
 	})
 }
