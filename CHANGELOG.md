@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Chores
+
+- **deps:** Update step-security/harden-runner action to v2.22.4 by @renovate[bot] in [#67](https://github.com/nicholas-fedor/clankerwatch/pull/67)
+
+## [0.1.3] - 2026-11-06
+
 ### Fixed
 
 - **engine:** Use the current plan names by @nicholas-fedor in [#65](https://github.com/nicholas-fedor/clankerwatch/pull/65)
@@ -87,7 +93,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Compare Releases
 
-- [unreleased](https://github.com/nicholas-fedor/clankerwatch/compare/v0.1.2...HEAD)
+- [unreleased](https://github.com/nicholas-fedor/clankerwatch/compare/v0.1.3...HEAD)
+- [0.1.3](https://github.com/nicholas-fedor/clankerwatch/compare/v0.1.2...v0.1.3)
 - [0.1.2](https://github.com/nicholas-fedor/clankerwatch/compare/v0.1.1...v0.1.2)
 - [0.1.1](https://github.com/nicholas-fedor/clankerwatch/compare/v0.1.0...v0.1.1)
 
