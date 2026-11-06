@@ -174,7 +174,7 @@ Each entry in `bars`:
 | `severity` | string | The server's own grading, such as `warning` or `critical` |
 | `level` | number | The level the widget colors by: `0` normal, `1` warning, `2` critical |
 | `headline` | boolean | Marks the bar a single-value indicator shows |
-| `credit` | boolean | Marks a credit balance, which is never alerted on |
+| `credit` | boolean | Marks a credit balance, which is never alerted on or shown in the panel |
 
 `level` is the more urgent of the server's `severity` and the configured thresholds.
 

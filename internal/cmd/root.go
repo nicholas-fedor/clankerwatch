@@ -36,8 +36,8 @@ func NewRoot(ctx context.Context, deps Dependencies) *cobra.Command {
 		Use:   options.Name,
 		Short: "Claude Code subscription usage for the KDE Plasma panel",
 		Long: `clankerwatch publishes Claude Code subscription usage on the D-Bus session
-bus for a KDE Plasma widget: the current 5-hour session, the weekly limits,
-their reset times, and extra usage.
+bus for a KDE Plasma widget: the weekly limits, the 5-hour session on accounts
+that have one, their reset times, and extra usage.
 
 It reads Claude Code's login without ever refreshing or writing it, calls the
 Anthropic usage endpoint at most every five minutes while Claude Code is

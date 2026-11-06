@@ -147,7 +147,7 @@ func barFromLimit(row limitRow) Bar {
 		ResetsAt: parseTime(row.ResetsAt),
 		Severity: strings.ToLower(row.Severity),
 		Headline: row.IsActive,
-		Credit:   false,
+		Credit:   row.Kind == kindCredit,
 	}
 }
 

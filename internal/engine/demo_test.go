@@ -84,12 +84,17 @@ func TestDemoScriptRead(t *testing.T) {
 	assert.Equal(t, "Pro", planName(login.SubscriptionType, login.RateLimitTier))
 	assert.True(t, login.HasScope("user:profile"))
 
-	expiring := sceneScript(5)
+	login, err = sceneScript(4).Read()
+	require.NoError(t, err)
+	assert.Equal(t, "max", login.SubscriptionType)
+	assert.Equal(t, "default_claude_max_20x", login.RateLimitTier)
+
+	expiring := sceneScript(6)
 	login, err = expiring.Read()
 	require.NoError(t, err)
 	assert.Equal(t, expiring.now().Add(demoExpiringIn), login.ExpiresAt)
 
-	_, err = sceneScript(6).Read()
+	_, err = sceneScript(7).Read()
 	require.ErrorIs(t, err, claudecode.ErrLoggedOut)
 }
 
@@ -118,7 +123,20 @@ func TestDemoScriptFetch(t *testing.T) {
 	require.NotNil(t, parsed.Extra)
 	assert.Equal(t, "$12.50", parsed.Extra.Used.String())
 
-	_, err = sceneScript(4).Fetch(t.Context(), "demo")
+	body, err = sceneScript(4).Fetch(t.Context(), "demo")
+	require.NoError(t, err)
+
+	parsed, err = usage.Parse(body)
+	require.NoError(t, err)
+	require.Len(t, parsed.Bars, 2)
+	assert.Equal(t, "weekly_all", parsed.Bars[0].ID)
+	assert.Equal(t, "7d", parsed.Bars[0].Short)
+	assert.InDelta(t, 49.0, parsed.Bars[0].Percent, 0.001)
+	assert.Equal(t, "weekly_scoped:model:fable", parsed.Bars[1].ID)
+	assert.Equal(t, "Fable", parsed.Bars[1].Short)
+	assert.InDelta(t, 8.0, parsed.Bars[1].Percent, 0.001)
+
+	_, err = sceneScript(5).Fetch(t.Context(), "demo")
 
 	var fetchErr *usage.FetchError
 

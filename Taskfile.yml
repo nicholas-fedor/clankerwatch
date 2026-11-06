@@ -23,6 +23,7 @@ vars:
     -X '{{.MODULE}}/internal/version.CommitSHA={{.COMMIT_SHA}}'
     -X '{{.MODULE}}/internal/version.BuildTime={{.BUILD_TIME}}'
   QMLLINT: /usr/lib/qt6/bin/qmllint
+  QMLTESTRUNNER: /usr/lib/qt6/bin/qmltestrunner
   BINDIR:
     sh: echo "${BINDIR:-$HOME/.local/bin}"
   CONFIG_HOME:
@@ -105,6 +106,15 @@ tasks:
     # i18n() is injected by Plasma at runtime, so unqualified-access warnings are noise.
     cmds:
       - "{{.QMLLINT}} -I /usr/lib/qt6/qml --unqualified disable plasmoid/contents/ui/*.qml"
+
+  qmltest:
+    desc: "Test the widget's QML logic with the Qt 6 qmltestrunner"
+    # An address nothing listens on keeps the tests from reaching a real daemon
+    # or starting one through D-Bus activation.
+    env:
+      DBUS_SESSION_BUS_ADDRESS: unix:path=/nonexistent
+    cmds:
+      - "{{.QMLTESTRUNNER}} -platform offscreen -input test/qml"
 
   policy-check:
     desc: "Fail on token refresh code and on bus names that disagree"
@@ -191,7 +201,7 @@ tasks:
       - git cliff --output CHANGELOG.md
 
   check:
-    desc: "Run fmt, vet, modernize, test, lint, qmllint, policy-check, then vuln"
+    desc: "Run fmt, vet, modernize, test, lint, qmllint, qmltest, policy-check, then vuln"
     cmds:
       - task: fmt
       - task: vet
@@ -199,6 +209,7 @@ tasks:
       - task: test
       - task: lint
       - task: qmllint
+      - task: qmltest
       - task: policy-check
       - task: vuln
 

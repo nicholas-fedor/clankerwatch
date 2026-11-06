@@ -6,7 +6,7 @@ cascade:
   type: docs
 ---
 
-**clankerwatch** puts your Claude Code subscription usage in the KDE Plasma panel: the current 5-hour session, the weekly limits, when each one resets, and extra usage. These are the same bars Claude Code's `/usage` shows, kept up to date without opening a terminal.
+**clankerwatch** puts your Claude Code subscription usage in the KDE Plasma panel: the weekly limits, the 5-hour session on accounts that have one, when each one resets, and extra usage. These are the same bars Claude Code's `/usage` shows, kept up to date without opening a terminal.
 
 {{< video name="demo" poster="/images/popup.png" alt="The Clanker Watch popup cycling through normal, warning, critical, extra usage, rate limited, paused, and signed out states" >}}
 
