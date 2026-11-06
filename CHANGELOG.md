@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **engine:** Use the current plan names by @nicholas-fedor in [#65](https://github.com/nicholas-fedor/clankerwatch/pull/65)
 - **plasmoid:** Show the limits the account has in the panel by @nicholas-fedor in [#63](https://github.com/nicholas-fedor/clankerwatch/pull/63)
 
 ### Chores
