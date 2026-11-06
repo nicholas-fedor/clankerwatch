@@ -40,7 +40,7 @@ The panel shows the first two limits your account has, each with a short label, 
 
 | Account | Rows |
 | --- | --- |
-| With a session limit, such as Pro or Max | **5h** for the current 5-hour session, and **7d** for the weekly limit |
+| With a session limit, such as Pro, Max, or an unverified Ultra account | **5h** for the current 5-hour session, and **7d** for the weekly limit |
 | Without a session limit, such as a verified Ultra account | **7d** for the weekly limit, and **Fable** for the weekly Fable limit |
 
 The other limits stay in the popup and the tooltip. Until the daemon has data, or while Claude Code is signed out, the panel shows a single **7d** row with a dash.

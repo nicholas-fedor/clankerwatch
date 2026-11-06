@@ -29,7 +29,7 @@ The daemon never refreshes the login. Refresh tokens are single use, so a refres
 | --- | --- |
 | KDE Plasma | 6.4 or later |
 | systemd | A user session. D-Bus starts the daemon as a systemd user unit |
-| Claude Code | Signed in with a Claude subscription, such as Pro or Max |
+| Claude Code | Signed in with a Claude subscription, such as Pro, Max, or Ultra |
 | Architecture | `amd64` or `arm64` Linux |
 
 ## Quick start

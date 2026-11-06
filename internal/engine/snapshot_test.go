@@ -14,7 +14,7 @@ import (
 	"github.com/nicholas-fedor/clankerwatch/internal/usage"
 )
 
-// TestPlanName turns subscriptions and tiers into labels.
+// TestPlanName turns subscriptions and tiers into plan names.
 func TestPlanName(t *testing.T) {
 	t.Parallel()
 
@@ -24,12 +24,17 @@ func TestPlanName(t *testing.T) {
 		tier         string
 		want         string
 	}{
-		{name: "max 5x", subscription: "max", tier: "default_claude_max_5x", want: "Max 5x"},
-		{name: "max 20x", subscription: "max", tier: "default_claude_max_20x", want: "Max 20x"},
-		{name: "pro without a multiplier", subscription: "pro", tier: "default_claude_pro", want: "Pro"},
+		{name: "max", subscription: "max", tier: "default_claude_max_5x", want: "Max"},
+		{name: "max on the ultra tier", subscription: "max", tier: "default_claude_max_20x", want: "Ultra"},
+		{name: "ultra subscription", subscription: "ultra", tier: "default_claude_ultra", want: "Ultra"},
+		{name: "max on an unknown tier", subscription: "max", tier: "default_claude_max_40x", want: "Max"},
+		{name: "max with no tier", subscription: "max", tier: "", want: "Max"},
+		{name: "pro", subscription: "pro", tier: "default_claude_pro", want: "Pro"},
+		{name: "ultra tier needs the max subscription", subscription: "team", tier: "default_claude_max_20x", want: "Team"},
+		{name: "team drops the multiplier", subscription: "team", tier: "default_claude_max_5x", want: "Team"},
 		{name: "no tier", subscription: "team", tier: "", want: "Team"},
 		{name: "case and spaces normalized", subscription: "  ENTERPRISE ", tier: "", want: "Enterprise"},
-		{name: "multiplier only at the end", subscription: "max", tier: "5x_default", want: "Max"},
+		{name: "subscription normalized for ultra", subscription: " MAX ", tier: "default_claude_max_20x", want: "Ultra"},
 		{name: "non-ASCII first letter", subscription: "équipe", tier: "", want: "Équipe"},
 		{name: "empty subscription", subscription: "", tier: "default_claude_max_5x", want: ""},
 		{name: "blank subscription", subscription: " \t", tier: "default_claude_max_5x", want: ""},
@@ -146,7 +151,7 @@ func TestBuildSnapshotReflectsTheEngine(t *testing.T) {
 
 	got := e.buildSnapshot()
 
-	assert.Contains(t, got, `"plan":"Max 5x"`)
+	assert.Contains(t, got, `"plan":"Max"`)
 	assert.Contains(t, got, `"source":"api"`)
 	assert.Contains(t, got, `"status":"ok"`)
 	assert.Contains(t, got, `"refreshAllowedAtMs":1791288120000`)
