@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Chores
 
+- **deps:** Update module golang.org/x/sys to v0.50.0 by @renovate[bot] in [#70](https://github.com/nicholas-fedor/clankerwatch/pull/70)
+- **deps:** Update peter-evans/create-pull-request action to v8.1.2 by @renovate[bot] in [#69](https://github.com/nicholas-fedor/clankerwatch/pull/69)
 - **deps:** Update step-security/harden-runner action to v2.22.4 by @renovate[bot] in [#67](https://github.com/nicholas-fedor/clankerwatch/pull/67)
 
 ## [0.1.3] - 2026-11-06
