@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Chores
 
+- **deps:** Update actions/setup-go action to v7.1.0 by @renovate[bot] in [#77](https://github.com/nicholas-fedor/clankerwatch/pull/77)
 - **deps:** Update go module directive to v1.27.4 by @renovate[bot] in [#75](https://github.com/nicholas-fedor/clankerwatch/pull/75)
 - **deps:** Update peter-evans/create-pull-request action to v8.1.3 by @renovate[bot] in [#73](https://github.com/nicholas-fedor/clankerwatch/pull/73)
 - **deps:** Update go module directive to v1.27.4 by @renovate[bot] in [#72](https://github.com/nicholas-fedor/clankerwatch/pull/72)
