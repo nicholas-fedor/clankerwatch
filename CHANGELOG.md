@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- Add a contributing guide by @nicholas-fedor in [#81](https://github.com/nicholas-fedor/clankerwatch/pull/81)
+
 ### Chores
 
 - **task:** Add a task that tags the next release by @nicholas-fedor in [#79](https://github.com/nicholas-fedor/clankerwatch/pull/79)
