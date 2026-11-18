@@ -270,6 +270,44 @@ tasks:
     cmds:
       - goreleaser release --snapshot --clean --skip=sign --config build/goreleaser/goreleaser.yaml
 
+  tag:bump-*:
+    desc: "Tag the next release on main and push it to origin. Run tag:bump-major, tag:bump-minor, or tag:bump-patch"
+    # LATEST fetches origin while the vars resolve, before the preconditions
+    # run, so they compare HEAD against origin/main as it is now. Task asks for
+    # confirmation only after every precondition passes.
+    vars:
+      PART: "{{index .MATCH 0}}"
+      RELEASE_TAG: '^v[0-9]+\.[0-9]+\.[0-9]+$'
+      LATEST:
+        sh: |
+          git fetch --quiet --tags origin main
+          git tag --list 'v*' | grep -E '{{.RELEASE_TAG}}' | sort -V | tail -n 1
+      NEXT:
+        sh: |
+          echo "{{.LATEST | default "v0.0.0"}}" | awk -F. -v part={{.PART}} '{
+            major = substr($1, 2); minor = $2; patch = $3
+            if (part == "major") { major++; minor = 0; patch = 0 }
+            if (part == "minor") { minor++; patch = 0 }
+            if (part == "patch") { patch++ }
+            printf "v%d.%d.%d\n", major, minor, patch }'
+    requires:
+      vars:
+        - name: PART
+          enum: [major, minor, patch]
+    preconditions:
+      - sh: '[ "$(git branch --show-current)" = main ]'
+        msg: Releases are tagged on main
+      - sh: '[ -z "$(git status --porcelain)" ]'
+        msg: Commit or stash the changes in the working tree first
+      - sh: '[ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ]'
+        msg: main must match origin/main, so pull or push first
+      - sh: '[ -z "$(git tag --points-at HEAD | grep -E "{{.RELEASE_TAG}}")" ]'
+        msg: HEAD already has a release tag. If pushing it failed, run git push origin refs/tags/<tag>
+    prompt: Tag {{.NEXT}} after {{.LATEST | default "no release"}} and push it to origin?
+    cmds:
+      - git tag {{.NEXT}} -m "Release {{.NEXT}}"
+      - git push origin refs/tags/{{.NEXT}}
+
   clean:
     desc: "Remove build artifacts"
     cmds:
