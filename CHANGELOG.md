@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Chores
 
+- **deps:** Update github/codeql-action action to v4.39.4 by @renovate[bot] in [#87](https://github.com/nicholas-fedor/clankerwatch/pull/87)
 - **deps:** Update ossf/scorecard-action action to v2.6.0 by @renovate[bot] in [#85](https://github.com/nicholas-fedor/clankerwatch/pull/85)
 - **deps:** Update step-security/harden-runner action to v2.23.0 by @renovate[bot] in [#83](https://github.com/nicholas-fedor/clankerwatch/pull/83)
 
